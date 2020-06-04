@@ -1,0 +1,37 @@
+project_name: bdpass
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  -
+    main: ./cmd/main.go
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - 386
+      - amd64
+
+archives:
+  -
+    name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
+    replacements:
+      386: 32
+      amd64: 64
+    format_overrides:
+      -
+        goos: windows
+        format: zip
+
+checksum:
+  name_template: 'SHA256SUMS'
+
+changelog:
+  skip: true

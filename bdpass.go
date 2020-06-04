@@ -47,16 +47,12 @@ func Stat(filename string) (*RapidUploadMeta, error) {
 	meta.SliceMD5 = hex.EncodeToString(sliceMD5[:])
 
 	hash := md5.New()
-	_, err = hash.Write(data)
-	if err != nil {
-		return nil, err
-	}
 	hash32 := crc32.NewIEEE()
-	_, err = hash32.Write(data)
+	dst := io.MultiWriter(hash, hash32)
+	_, err = dst.Write(data)
 	if err != nil {
 		return nil, err
 	}
-	dst := io.MultiWriter(hash, hash32)
 	_, err = io.Copy(dst, file)
 	if err != nil {
 		return nil, err

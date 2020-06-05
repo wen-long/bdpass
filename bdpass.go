@@ -39,17 +39,17 @@ func Stat(filename string) (*RapidUploadMeta, error) {
 	meta.ContentLength = fi.Size()
 
 	data := make([]byte, _size)
-	_, err = file.Read(data)
+	n, err := file.Read(data)
 	if err != nil {
 		return nil, err
 	}
-	sliceMD5 := md5.Sum(data)
+	sliceMD5 := md5.Sum(data[:n])
 	meta.SliceMD5 = hex.EncodeToString(sliceMD5[:])
 
 	hash := md5.New()
 	hash32 := crc32.NewIEEE()
 	dst := io.MultiWriter(hash, hash32)
-	_, err = dst.Write(data)
+	_, err = dst.Write(data[:n])
 	if err != nil {
 		return nil, err
 	}

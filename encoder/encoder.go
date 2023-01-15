@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/winterssy/bdpass"
+	"github.com/wen-long/bdpass"
 )
 
 const (

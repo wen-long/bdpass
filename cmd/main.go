@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/winterssy/bdpass"
-	"github.com/winterssy/bdpass/encoder"
+	"github.com/wen-long/bdpass"
+	"github.com/wen-long/bdpass/encoder"
 )
 
 var (

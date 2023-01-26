@@ -6,7 +6,6 @@ import (
 	"hash/crc32"
 	"io"
 	"os"
-	"path/filepath"
 )
 
 const (
@@ -29,7 +28,7 @@ func Stat(filename string) (*RapidUploadMeta, error) {
 	defer file.Close()
 
 	meta := &RapidUploadMeta{
-		Filename: filepath.Base(filename),
+		Filename: filename,
 	}
 
 	fi, err := file.Stat()

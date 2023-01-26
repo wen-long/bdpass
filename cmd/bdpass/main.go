@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/wen-long/bdpass"
 	"github.com/wen-long/bdpass/encoder"
+	"io/fs"
+	"os"
+	"path/filepath"
 )
 
 var (
@@ -39,13 +40,29 @@ func Run(_ *cobra.Command, args []string) {
 	default:
 		enc = &encoder.STD{}
 	}
-	for _, filename := range args {
-		meta, err := bdpass.Stat(filename)
+	for _, entryName := range args {
+		relName, err := filepath.Rel(".", entryName)
 		if err != nil {
-			fmt.Printf("bdpass: %s: %s\n", filename, err)
+			fmt.Printf("# %s is not valid path, skip: %v\n", entryName, err)
 			continue
 		}
-		fmt.Println(enc.Encode(meta))
+
+		filepath.Walk(relName, func(path string, info fs.FileInfo, err error) error {
+			if err != nil {
+				fmt.Printf("# %s is not accessable, skip: %v\n", path, err)
+				return nil
+			}
+			if info.IsDir() {
+				return nil
+			}
+			filename := path
+			meta, err := bdpass.Stat(filename)
+			if err != nil {
+				fmt.Printf("#: %s: %s\n", filename, err)
+			}
+			fmt.Println(enc.Encode(meta))
+			return nil
+		})
 	}
 }
 

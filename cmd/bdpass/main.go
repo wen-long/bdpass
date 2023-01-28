@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -41,13 +42,23 @@ func Run(_ *cobra.Command, args []string) {
 		enc = &encoder.STD{}
 	}
 	for _, entryName := range args {
-		relName, err := filepath.Rel(".", entryName)
+		absPath, err := filepath.Abs(entryName)
 		if err != nil {
-			fmt.Printf("# %s is not valid path, skip: %v\n", entryName, err)
+			fmt.Printf("# %s is not accessable, skip: %v\n", entryName, err)
 			continue
 		}
+		prefixPwdBaseDirName := ""
 
-		filepath.Walk(relName, func(path string, info fs.FileInfo, err error) error {
+		stat, err := os.Stat(absPath)
+		if err != nil {
+			fmt.Printf("# %s is not accessable, skip: %v\n", entryName, err)
+			continue
+		}
+		if stat.IsDir() {
+			prefixPwdBaseDirName = filepath.Base(absPath)
+		}
+
+		filepath.Walk(absPath, func(path string, info fs.FileInfo, err error) error {
 			if err != nil {
 				fmt.Printf("# %s is not accessable, skip: %v\n", path, err)
 				return nil
@@ -56,9 +67,20 @@ func Run(_ *cobra.Command, args []string) {
 				return nil
 			}
 			filename := path
-			meta, err := bdpass.Stat(filename)
+
+			index := strings.Index(filename, prefixPwdBaseDirName)
+			prettyName := ""
+			if len(prefixPwdBaseDirName) != 0 {
+				prettyName = filename[index:]
+			} else {
+				prettyName = filepath.Base(filename)
+			}
+			prettyName = strings.ReplaceAll(prettyName, "\\", "/")
+
+			meta, err := bdpass.Stat(filename, prettyName)
+
 			if err != nil {
-				fmt.Printf("#: %s: %s\n", filename, err)
+				fmt.Printf("#: %s: %s\n", prettyName, err)
 			}
 			fmt.Println(enc.Encode(meta))
 			return nil

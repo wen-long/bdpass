@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	_stdFormat = "%s#%s#%d#%s"
+	_stdFormat = "%s#%s#%011d#%s"
 	_pdlFormat = "%s|%d|%s|%s"
 	_pcsFormat = "BaiduPCS-Go rapidupload -length=%d -md5=%s -slicemd5=%s -crc32=%d %q"
 )
@@ -34,7 +34,7 @@ func (*STD) Encode(meta *bdpass.RapidUploadMeta) string {
 		strings.ToUpper(meta.ContentMD5),
 		strings.ToUpper(meta.SliceMD5),
 		meta.ContentLength,
-		meta.Filename,
+		meta.PrettyName,
 	)
 }
 

@@ -13,6 +13,7 @@ const (
 )
 
 type RapidUploadMeta struct {
+	PrettyName    string
 	Filename      string
 	ContentLength int64
 	ContentMD5    string
@@ -20,7 +21,7 @@ type RapidUploadMeta struct {
 	ContentCRC32  uint32
 }
 
-func Stat(filename string) (*RapidUploadMeta, error) {
+func Stat(filename string, prettyName string) (*RapidUploadMeta, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -28,7 +29,8 @@ func Stat(filename string) (*RapidUploadMeta, error) {
 	defer file.Close()
 
 	meta := &RapidUploadMeta{
-		Filename: filename,
+		Filename:   filename,
+		PrettyName: prettyName,
 	}
 
 	fi, err := file.Stat()
